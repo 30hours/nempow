@@ -1,0 +1,30 @@
+services:
+  server:
+    restart: always
+    build: ./server
+    volumes:
+      - ./data:/app/data
+    command: python main.py
+    container_name: nempow-server
+  db:
+    restart: always
+    image: postgres:18.3-alpine3.23
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql
+    container_name: nempow-db
+  api:
+    restart: always
+    build: ./api
+    environment:
+      - TZ=Australia/Brisbane
+    volumes:
+      - ./api/index.html:/app/index.html
+    ports: 
+      - 8000:8000
+    container_name: nempow-api
