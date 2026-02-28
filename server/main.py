@@ -76,7 +76,7 @@ def get_plant_info(file):
 
   # filter to useful info
   df = df[df['Commitment Status'] == 'In Service']
-  cols = ['Site Name', 'Region', 'DUID', 'Technology Type', 'Unit Capacity (MW AC)']
+  cols = ['Site Name', 'Region', 'DUID', 'Technology Type', 'Max Site Capacity (AC)']
   df = df[cols]
   
   # remove postfix '1' from state e.g. SA1 becomes SA
@@ -91,7 +91,7 @@ def get_plant_info(file):
     'Site Name': 'first',
     'Technology Type': 'first',
     'Region': 'first',
-    'Unit Capacity (MW AC)': 'sum'
+    'Max Site Capacity (AC)': 'sum'
   }).reset_index()
   
   # drop any duds
@@ -110,7 +110,7 @@ def populate_db_plant(df, conn):
 
     # prepare data
     data_to_insert = [
-      (row['DUID'], row['Site Name'], row['Technology Type'], row['Region'], row['Unit Capacity (MW AC)'])
+      (row['DUID'], row['Site Name'], row['Technology Type'], row['Region'], row['Max Site Capacity (AC)'])
       for _, row in df.iterrows()
     ]
 
