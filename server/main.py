@@ -10,6 +10,7 @@ import logging
 import zipfile
 import io
 from apscheduler.schedulers.blocking import BlockingScheduler
+import signal
 
 def db_init():
 
@@ -369,7 +370,12 @@ def run_archive(url_archive, conn):
   except Exception as e:
     logging.error(f"Error occurred: {e}")
 
-
+def shutdown(signum, frame):
+  logging.info("Caught stop signal, shutting down scheduler...")
+  scheduler.shutdown(wait=False)
+  if conn:
+    conn.close()
+    
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',)
 
 # save generator info
@@ -390,5 +396,9 @@ scheduler.add_job(run_live, 'cron', minute='*/5',
 # run archive processing only once
 scheduler.add_job(run_archive, 'date',
   args=[url_archive, conn], run_date=datetime.now())
+
+# graceful shutdown during jobs
+signal.signal(signal.SIGTERM, shutdown)
+signal.signal(signal.SIGINT, shutdown)
 
 scheduler.start()
